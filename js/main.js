@@ -1,40 +1,61 @@
-const form = document.getElementById('novoItem');
-const lista = document.getElementById('lista');
-const itens = JSON.parse(localStorage.getItem('itens')) || [];
+// Operador lógico que retorna com dados salvos, ou string vazia, utilizando localStorage.getItem, modificando o valor de `string` com JSON.parse()
 
-itens.forEach((elemento) => {
+const form = document.getElementById("novoItem") 
+const lista = document.getElementById("lista")
+const itens = JSON.parse(localStorage.getItem("itens")) || []   
+
+// Uso do forEach para que todos os itens já escritos na lista sejam mantidos ao atualizar a página 
+itens.forEach( (elemento) => {    
     criaElemento(elemento)
-})
+} )     
 
-form.addEventListener('submit', (evento) => {
-    evento.preventDefault();
+// Refatoração do addEventListener para receber as funções extras da função criaElemento
+form.addEventListener("submit", (evento) => {   
+    evento.preventDefault()            
 
-    const nome = evento.target.elements['nome'];
-    const quantidade = evento.target.elements['quantidade'];
+    const nome = evento.target.elements['nome']
+    const quantidade = evento.target.elements['quantidade']
 
     const itemAtual = {
-        'nome': nome.value,
-        'quantidade': quantidade.value,
+        "nome": nome.value,
+        "quantidade": quantidade.value
+        }   
+
+    const existe = itens.find(elemento => elemento.nome === nome.value);    
+
+    if (existe) {
+        itemAtual.id = existe.id
+        atualizaElemento(itemAtual)
+    } else {
+        itemAtual.id = itens.length;
+
+        criaElemento(itemAtual)
+
+        itens.push(itemAtual)
     }
 
-    itens.push(itemAtual); 
+    localStorage.setItem("itens", JSON.stringify(itens))
 
-    criaElemento(itemAtual);
+    nome.value = ""
+    quantidade.value = ""
+})
 
-    nome.value = '';
-    quantidade.value = '';
-});
+// Refatoração da função `criaElemento` para que possua apenas a função que faça sentido ao nome. 
 
-function criaElemento(item) {
+function criaElemento(item) {  
     const novoItem = document.createElement('li')
-    novoItem.classList.add('item')
+    novoItem.classList.add("item")
 
     const numeroItem = document.createElement('strong')
+    numeroItem.dataset.id = item.id
     numeroItem.innerHTML = item.quantidade
-
     novoItem.appendChild(numeroItem)
-    novoItem.innerHTML += item.nome
-    lista.appendChild(novoItem)    
 
-    localStorage.setItem('itens', JSON.stringify(itens));
+    novoItem.innerHTML += item.nome
+
+    lista.appendChild(novoItem)
+}
+
+function atualizaElemento(item) {
+    document.querySelector("[data-id='"+item.id+"']").innerHTML = item.quantidade;
 }
